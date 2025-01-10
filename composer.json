@@ -1,0 +1,23 @@
+{
+    "name": "cigalpay/cigalpay-php-sdk",
+    "description": "PHP SDK for Cigalpay API Integration",
+    "version": "1.0.0",
+    "type": "library",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cigalpay\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "cigalpay",
+            "email": "support@cigalpay.com"
+        }
+    ]
+}
