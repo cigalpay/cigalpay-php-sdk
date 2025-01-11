@@ -32,7 +32,12 @@ class CigalpaySDK {
         $response = curl_exec($ch);
         curl_close($ch);
 
-        return json_decode($response, true);
+        $decodedResponse = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Failed to decode JSON response: ' . json_last_error_msg());
+        }
+
+        return $decodedResponse;
     }
 
     public function createPayment($amount, $currency, $extraId, $ipnCallbackUrl, $invoiceCallbackUrl) {
@@ -46,6 +51,9 @@ class CigalpaySDK {
     }
 
     public function getInvoiceStatus($invoiceId) {
+        if (!is_string($invoiceId) || empty($invoiceId)) {
+            throw new \InvalidArgumentException("Invoice ID must be a non-empty string.");
+        }
         return $this->request('GET', '/getInvoiceStatus?invoiceId=' . urlencode($invoiceId));
     }
 
