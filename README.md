@@ -30,3 +30,19 @@ $response = $sdk->createPayment(0.05, 'LTC', 'order123', 'https://callback.url/i
 ```php
 print_r($response);
 ```
+
+## Available Methods
+
+- `createPayment(amount, currency, extraId, ipnCallbackUrl, invoiceCallbackUrl)`
+- `getInvoiceStatus(invoiceId)`
+- `getPaymentStatus(id)`
+- `getPaymentsByExtraId(extraId)`
+- `getActivePayments()`
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests for improvements.
