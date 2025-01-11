@@ -1,6 +1,8 @@
 <?php
 namespace Cigalpay;
 
+use Cigalpay\Exceptions\CigalpayException;
+
 class CigalpaySDK {
     private $baseUrl;
     private $apiKey;
@@ -30,11 +32,23 @@ class CigalpaySDK {
         }
 
         $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $errorMessage = curl_error($ch);
+            curl_close($ch);
+            throw new CigalpayException('cURL error: ' . $errorMessage);
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode >= 300) {
+            throw new CigalpayException('HTTP request failed with status code: ' . $httpCode);
+        }
 
         $decodedResponse = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Failed to decode JSON response: ' . json_last_error_msg());
+            throw new CigalpayException('Failed to decode JSON response: ' . json_last_error_msg());
         }
 
         return $decodedResponse;
