@@ -1,11 +1,12 @@
 {
     "name": "cigalpay/cigalpay-php-sdk",
-    "description": "PHP SDK for Cigalpay API Integration",
-    "version": "1.0.0",
+    "description": "Official CigalPay PHP SDK: accept crypto payments (BTC, ETH, USDT, SOL and more) in your app, SaaS or website.",
     "type": "library",
+    "keywords": ["cigalpay", "crypto", "payments", "bitcoin", "usdt", "payment-gateway", "webhook"],
+    "homepage": "https://cigalpay.com/developers",
+    "license": "MIT",
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "license": "MIT",
     "require": {
         "php": ">=7.4",
         "ext-curl": "*",
@@ -16,9 +17,16 @@
             "Cigalpay\\": "src/"
         }
     },
+    "scripts": {
+        "test": "php tests/run.php"
+    },
+    "support": {
+        "email": "support@cigalpay.com",
+        "docs": "https://cigalpay.com/developers"
+    },
     "authors": [
         {
-            "name": "cigalpay",
+            "name": "CigalPay",
             "email": "support@cigalpay.com"
         }
     ]
