@@ -44,6 +44,7 @@ $checkout = $cigalpay->createCheckout([
     'lang'        => 'en',                 // en, fr, es, de
 ]);
 
+// save $checkout['id'] with the order, then:
 header('Location: ' . $checkout['chargeLink']);
 ```
 
@@ -64,8 +65,11 @@ if (!CigalPay::verifyWebhook($raw, $sig, getenv('CIGALPAY_IPN_SECRET'))) {
 
 $payment = CigalPay::parseWebhook($raw);
 
-if (CigalPay::isPaid($payment['status'])) {
-    // CONFIRMED or FINISHED: mark $payment['extraId'] as paid (only once)
+$order = find_order($payment['extraId']);
+
+if (CigalPay::isPaid($payment['status']) && $order
+    && isset($payment['checkoutId']) && hash_equals($order->cigalpay_checkout_id, $payment['checkoutId'])) {
+    // CONFIRMED or FINISHED, for the checkout you created: mark the order paid (only once)
 }
 
 http_response_code(200);
@@ -74,6 +78,8 @@ http_response_code(200);
 Statuses: `WAITING`, `CONFIRMING`, `CONFIRMED`, `SENDING`, `FINISHED`, `PARTIALLY_PAID`, `EXPIRED`, `FAILED` (constants `CigalPay::STATUS_*`). Ship only on `CONFIRMED` or `FINISHED`.
 
 The same payment can be notified more than once, so make your handler idempotent.
+
+Always compare `checkoutId` with the `id` that `createCheckout()` returned for that order. Anyone can create a checkout with your account ID and one of your order references, so `extraId` alone doesn't prove the order was paid in full. `checkoutAmount` and `checkoutCurrency` give the checkout's price.
 
 ## Payment API
 
