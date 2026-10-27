@@ -28,6 +28,11 @@ check('parseWebhook', CigalPay::parseWebhook($fixtures[0]['body'])['extraId'] ==
 try { (new CigalPay())->createCheckout(['amount' => 1, 'currency' => 'USD', 'orderId' => 1, 'description' => 'x', 'returnUrl' => 'https://a.b', 'notifyUrl' => 'https://a.b']); check('needs accountId', false); }
 catch (\Cigalpay\Exceptions\CigalpayException $e) { check('needs accountId', strpos($e->getMessage(), 'accountId') !== false); }
 
+try { (new CigalPay())->createRefund(['paymentId' => 'x', 'amount' => 1]); check('createRefund needs apiKey', false); }
+catch (\Cigalpay\Exceptions\CigalpayException $e) { check('createRefund needs apiKey', strpos($e->getMessage(), 'apiKey') !== false); }
+try { (new CigalPay(['apiKey' => 'k']))->createRefund(['amount' => 1]); check('createRefund needs paymentId', false); }
+catch (\Cigalpay\Exceptions\CigalpayException $e) { check('createRefund needs paymentId', strpos($e->getMessage(), 'paymentId') !== false); }
+
 if (getenv('CIGALPAY_LIVE')) {
     $c = new CigalPay(['accountId' => getenv('CIGALPAY_ACCOUNT_ID')]);
     $coins = $c->getSupportedCoins();
