@@ -30,6 +30,7 @@ class CigalPay
     protected $accountId;
     /** @var string|null */
     protected $apiKey;
+    protected $forwardingKey;
     /** @var string */
     protected $checkoutUrl;
     /** @var string */
@@ -47,6 +48,7 @@ class CigalPay
     {
         $this->accountId = isset($options['accountId']) ? $options['accountId'] : null;
         $this->apiKey = isset($options['apiKey']) ? $options['apiKey'] : null;
+        $this->forwardingKey = isset($options['forwardingKey']) ? $options['forwardingKey'] : null;
         $this->checkoutUrl = rtrim(isset($options['checkoutUrl']) ? $options['checkoutUrl'] : self::CHECKOUT_URL, '/');
         $this->apiUrl = rtrim(isset($options['apiUrl']) ? $options['apiUrl'] : self::API_URL, '/');
         $this->merchantApiUrl = rtrim(isset($options['merchantApiUrl']) ? $options['merchantApiUrl'] : self::MERCHANT_API_URL, '/');
@@ -124,6 +126,39 @@ class CigalPay
             'chargeId' => $p['checkoutId'],
             'swapCurrency' => $p['swapCoin'],
         ], $this->apiHeaders());
+    }
+
+    /**
+     * Ask to add a customer's wallet. Returns verificationLink: send it to your
+     * customer. Once they confirm, it's used after 24 hours, under its label.
+     * Works only from the IPs of your forwarding key.
+     *
+     * @param array $p currency, label, address
+     */
+    public function addForwardingAddress(array $p)
+    {
+        foreach (['currency', 'label', 'address'] as $k) {
+            if (empty($p[$k])) {
+                throw new CigalpayException("CigalPay: addForwardingAddress needs `$k`");
+            }
+        }
+        return $this->request('POST', $this->merchantApiUrl . '/api/forwarding/addresses', [
+            'currency' => $p['currency'],
+            'label' => $p['label'],
+            'address' => $p['address'],
+        ], $this->forwardingHeaders());
+    }
+
+    /** The wallets you asked for, and whether each customer confirmed. */
+    public function getForwardingAddresses()
+    {
+        return $this->request('GET', $this->merchantApiUrl . '/api/forwarding/addresses', null, $this->forwardingHeaders());
+    }
+
+    /** Remove a labelled address. Its payments go back to your default address or balance. */
+    public function removeForwardingLabel($id)
+    {
+        return $this->request('DELETE', $this->merchantApiUrl . '/api/forwarding/labels/' . rawurlencode($id), null, $this->forwardingHeaders());
     }
 
     /** The labelled forwarding addresses confirmed in your dashboard. */
@@ -258,6 +293,11 @@ class CigalPay
             throw new CigalpayException("CigalPay: pass `$field` to the constructor to use this method");
         }
         return $this->$field;
+    }
+
+    protected function forwardingHeaders()
+    {
+        return ['cigalpay-forwarding-key: ' . $this->needs('forwardingKey')];
     }
 
     protected function apiHeaders()
