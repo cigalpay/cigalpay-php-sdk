@@ -81,6 +81,8 @@ The same payment can be notified more than once, so make your handler idempotent
 
 Always compare `checkoutId` with the `id` that `createCheckout()` returned for that order. Anyone can create a checkout with your account ID and one of your order references, so `extraId` alone doesn't prove the order was paid in full. `checkoutAmount` and `checkoutCurrency` give the checkout's price.
 
+**Test without paying:** in the dashboard, Settings → API → Test notification sends a signed sample to your URL. It carries `test: true` and the order reference `cigalpay-test`, so your server can ignore it.
+
 ## Payment API
 
 Use the payment API if you build your own payment page. It needs `apiKey`.
