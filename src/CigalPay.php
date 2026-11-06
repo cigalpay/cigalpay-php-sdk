@@ -90,7 +90,8 @@ class CigalPay
      * page. Needs white label turned on in your dashboard settings.
      *
      * @param array $p checkoutId (the id createCheckout() returned), and coin ('BTC', 'USDT_TRX'...)
-     *                 or swapCoin (from getSwapCoins()) with customer ['ip' => ..., 'userAgent' => ..., 'languages' => ...]
+     *                 or swapCoin (from getSwapCoins()) with customer ['ip' => ..., 'userAgent' => ..., 'languages' => ...],
+     *                 forwardLabel (optional: which confirmed forwarding address gets this payment)
      */
     public function payCheckout(array $p)
     {
@@ -109,6 +110,7 @@ class CigalPay
         if ($coin) $body['coins'] = $coin;
         if ($swapCoin) $body['swapCurrency'] = $swapCoin;
         if (isset($p['customer'])) $body['customer'] = $p['customer'];
+        if (isset($p['forwardLabel'])) $body['forwardLabel'] = $p['forwardLabel'];
         return $this->request('POST', $this->checkoutUrl . '/api/charge-invoice', $body, $this->apiHeaders());
     }
 
@@ -122,6 +124,12 @@ class CigalPay
             'chargeId' => $p['checkoutId'],
             'swapCurrency' => $p['swapCoin'],
         ], $this->apiHeaders());
+    }
+
+    /** The labelled forwarding addresses confirmed in your dashboard. */
+    public function getForwardingLabels()
+    {
+        return $this->request('GET', $this->merchantApiUrl . '/api/forwarding/labels', null, $this->apiHeaders());
     }
 
     /** The coins a customer can pay with through automatic conversion. */
