@@ -83,6 +83,53 @@ class CigalPay
         ]);
     }
 
+    // ── Your own payment page (white label) ─────────────────────────
+
+    /**
+     * Turn a checkout into a payment and get the address to show on your own
+     * page. Needs white label turned on in your dashboard settings.
+     *
+     * @param array $p checkoutId (the id createCheckout() returned), and coin ('BTC', 'USDT_TRX'...)
+     *                 or swapCoin (from getSwapCoins()) with customer ['ip' => ..., 'userAgent' => ..., 'languages' => ...]
+     */
+    public function payCheckout(array $p)
+    {
+        $coin = isset($p['coin']) ? $p['coin'] : null;
+        $swapCoin = isset($p['swapCoin']) ? $p['swapCoin'] : null;
+        if (empty($p['checkoutId'])) {
+            throw new CigalpayException('CigalPay: payCheckout needs `checkoutId`');
+        }
+        if (empty($coin) === empty($swapCoin)) {
+            throw new CigalpayException('CigalPay: payCheckout needs `coin` or `swapCoin`');
+        }
+        if ($swapCoin && empty($p['customer']['ip'])) {
+            throw new CigalpayException('CigalPay: payCheckout needs `customer.ip` with `swapCoin`');
+        }
+        $body = ['chargeId' => $p['checkoutId']];
+        if ($coin) $body['coins'] = $coin;
+        if ($swapCoin) $body['swapCurrency'] = $swapCoin;
+        if (isset($p['customer'])) $body['customer'] = $p['customer'];
+        return $this->request('POST', $this->checkoutUrl . '/api/charge-invoice', $body, $this->apiHeaders());
+    }
+
+    /** What the customer would send to pay a checkout in a converted coin. */
+    public function quoteCheckout(array $p)
+    {
+        if (empty($p['checkoutId']) || empty($p['swapCoin'])) {
+            throw new CigalpayException('CigalPay: quoteCheckout needs `checkoutId` and `swapCoin`');
+        }
+        return $this->request('POST', $this->checkoutUrl . '/api/swap-quote', [
+            'chargeId' => $p['checkoutId'],
+            'swapCurrency' => $p['swapCoin'],
+        ], $this->apiHeaders());
+    }
+
+    /** The coins a customer can pay with through automatic conversion. */
+    public function getSwapCoins()
+    {
+        return $this->request('GET', $this->apiUrl . '/swapCurrencies');
+    }
+
     // ── Payment API (you show the address yourself) ───────────────────────
 
     /**

@@ -25,6 +25,12 @@ check('missing signature rejected', !CigalPay::verifyWebhook($fixtures[0]['body'
 check('isPaid', CigalPay::isPaid('CONFIRMED') && CigalPay::isPaid('FINISHED') && !CigalPay::isPaid('CONFIRMING'));
 check('parseWebhook', CigalPay::parseWebhook($fixtures[0]['body'])['extraId'] === '1042');
 
+$c0 = new CigalPay(['apiKey' => 'k']);
+foreach ([[[], 'checkoutId'], [['checkoutId' => 'c'], 'swapCoin'], [['checkoutId' => 'c', 'coin' => 'BTC', 'swapCoin' => 'XRP'], 'swapCoin'], [['checkoutId' => 'c', 'swapCoin' => 'XRP'], 'customer.ip']] as $case) {
+    try { $c0->payCheckout($case[0]); check('payCheckout refused', false); }
+    catch (\Cigalpay\Exceptions\CigalpayException $e) { check('payCheckout needs ' . $case[1], strpos($e->getMessage(), $case[1]) !== false); }
+}
+
 try { (new CigalPay())->createCheckout(['amount' => 1, 'currency' => 'USD', 'orderId' => 1, 'description' => 'x', 'returnUrl' => 'https://a.b', 'notifyUrl' => 'https://a.b']); check('needs accountId', false); }
 catch (\Cigalpay\Exceptions\CigalpayException $e) { check('needs accountId', strpos($e->getMessage(), 'accountId') !== false); }
 

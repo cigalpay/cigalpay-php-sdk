@@ -100,6 +100,22 @@ $cigalpay->getActivePayments();
 $cigalpay->getSupportedCoins();
 ```
 
+## Your own payment page (white label)
+
+Turn on **White label** in your dashboard (Settings → White label). Your server creates the checkout, then asks for the address to show on your page. The customer never sees a CigalPay payment page.
+
+```php
+$checkout = $cigalpay->createCheckout(['amount' => 49.9, 'currency' => 'USD', 'orderId' => '1042', 'description' => 'Order #1042', 'returnUrl' => $returnUrl, 'notifyUrl' => $notifyUrl]);
+
+// A coin accepted directly:
+$payment = $cigalpay->payCheckout(['checkoutId' => $checkout['id'], 'coin' => 'BTC']);
+
+// A coin converted at payment: pass the paying customer as your server sees them.
+$swap = $cigalpay->payCheckout(['checkoutId' => $checkout['id'], 'swapCoin' => 'XRP', 'customer' => ['ip' => $_SERVER['REMOTE_ADDR'], 'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? null]]);
+```
+
+Show the returned address and exact amount, and confirm the order from the signed notification, as with a hosted checkout. Use `getSwapCoins()` and `quoteCheckout()` to list converted coins and show what the customer would send. Keep your API key on your server.
+
 ## Refunds
 
 Refund a paid payment from your server. It needs `apiKey`.
