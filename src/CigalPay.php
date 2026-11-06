@@ -184,7 +184,7 @@ class CigalPay
      *
      * @param array $p paymentId, and amount (in the coin paid) or checkoutAmount
      *                 (in the checkout's USD / EUR, converted at the payment's rate);
-     *                 customerEmail, reason (optional)
+     *                 customerEmail (with white label on, you send the link yourself), reason (optional)
      * @return array ['refund' => [...], 'link' => customer link]
      */
     public function createRefund(array $p)

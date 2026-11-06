@@ -116,6 +116,8 @@ $swap = $cigalpay->payCheckout(['checkoutId' => $checkout['id'], 'swapCoin' => '
 
 Show the returned address and exact amount, and confirm the order from the signed notification, as with a hosted checkout. Use `getSwapCoins()` and `quoteCheckout()` to list converted coins and show what the customer would send. Keep your API key on your server.
 
+With white label on, CigalPay sends your customer no refund emails: `createRefund()` returns the `link` and the refund's data, and you tell your customer yourself. Check progress with `getRefunds()`.
+
 ## Refunds
 
 Refund a paid payment from your server. It needs `apiKey`.
