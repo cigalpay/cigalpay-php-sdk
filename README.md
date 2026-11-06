@@ -118,7 +118,7 @@ Show the returned address and exact amount, and confirm the order from the signe
 
 To send a payment to a specific wallet, add labelled addresses in Settings → Forwarding, each confirmed by email and used after 24 hours, then pass `forwardLabel` to `payCheckout()`. Your API key can only pick among those addresses, never add one. List them with `getForwardingLabels()`. An unknown or inactive label is refused.
 
-To add your customers' wallets from your server, create a forwarding key in Settings → White label, limited to your server's IPs. Verify each wallet with your customer, then call `addForwardingAddress({ currency, label, address })`. It's used after 24 hours. You get an email with a cancel link for each new wallet, and the number of new wallets a day is limited. You are responsible for checking these wallets with your customers. List them with `getForwardingAddresses()`.
+To add your customers' wallets from your server, ask support to approve your account, then create a forwarding key in Settings → White label, limited to your server's IPs. Verify each wallet with your customer, then call `addForwardingAddress({ currency, label, address })`. It's used after 24 hours. You get an email with a cancel link for each new wallet, and the number of new wallets a day is limited. You are responsible for checking these wallets with your customers. List them with `getForwardingAddresses()`.
 
 With white label on, CigalPay sends your customer no refund emails. Collect their address on your side and call `refundToAddress()` with your forwarding key: there's no refund page, and it goes to review like every refund. Check progress with `getRefunds()`.
 
