@@ -129,9 +129,8 @@ class CigalPay
     }
 
     /**
-     * Ask to add a customer's wallet. Returns verificationLink: send it to your
-     * customer. Once they confirm, it's used after 24 hours, under its label.
-     * Works only from the IPs of your forwarding key.
+     * Add a customer's wallet you have verified. It's used after 24 hours,
+     * under its label. Works only from the IPs of your forwarding key.
      *
      * @param array $p currency, label, address
      */
@@ -149,10 +148,32 @@ class CigalPay
         ], $this->forwardingHeaders());
     }
 
-    /** The wallets you asked for, and whether each customer confirmed. */
+    /** The wallets added through the API. */
     public function getForwardingAddresses()
     {
         return $this->request('GET', $this->merchantApiUrl . '/api/forwarding/addresses', null, $this->forwardingHeaders());
+    }
+
+    /**
+     * Refund a paid payment to your customer's address: no refund page, and it
+     * goes to review like every refund.
+     *
+     * @param array $p paymentId, address, amount or checkoutAmount, reason (optional)
+     */
+    public function refundToAddress(array $p)
+    {
+        if (empty($p['paymentId']) || empty($p['address'])) {
+            throw new CigalpayException('CigalPay: refundToAddress needs `paymentId` and `address`');
+        }
+        if (isset($p['amount']) === isset($p['checkoutAmount'])) {
+            throw new CigalpayException('CigalPay: refundToAddress needs `amount` or `checkoutAmount`');
+        }
+        $body = ['paymentId' => $p['paymentId'], 'address' => $p['address']];
+        foreach (['amount', 'checkoutAmount'] as $k) {
+            if (isset($p[$k])) $body[$k] = (float) $p[$k];
+        }
+        if (!empty($p['reason'])) $body['reason'] = (string) $p['reason'];
+        return $this->request('POST', $this->merchantApiUrl . '/api/forwarding/refunds', $body, $this->forwardingHeaders());
     }
 
     /** Remove a labelled address. Its payments go back to your default address or balance. */
